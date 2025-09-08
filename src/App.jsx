@@ -2,120 +2,20 @@ import AppLayout from "./components/Layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProposalCard from "./components/ProposalCard";
 import useChairPerson from "./hooks/useChairPerson";
-
-const proposals = [
-    {
-        id: 1,
-        description: "Fund community outreach program",
-        recipient: "0x1234567890123456789012345678901234567890",
-        amount: "1000000000000000000",
-        voteCount: 12,
-        deadline: 1703980800,
-        executed: false,
-        isVoted: false,
-    },
-    {
-        id: 2,
-        description: "Develop new smart contract features",
-        recipient: "0x2345678901234567890123456789012345678901",
-        amount: "2000000000000000000",
-        voteCount: 8,
-        deadline: 1704067200,
-        executed: true,
-        isVoted: true,
-    },
-    {
-        id: 3,
-        description: "Marketing campaign funding",
-        recipient: "0x3456789012345678901234567890123456789012",
-        amount: "1500000000000000000",
-        voteCount: 15,
-        deadline: 1704153600,
-        executed: false,
-        isVoted: false,
-    },
-    {
-        id: 4,
-        description: "Security audit funding",
-        recipient: "0x4567890123456789012345678901234567890123",
-        amount: "3000000000000000000",
-        voteCount: 20,
-        deadline: 1704240000,
-        executed: false,
-        isVoted: true,
-    },
-    {
-        id: 5,
-        description: "Infrastructure upgrade",
-        recipient: "0x5678901234567890123456789012345678901234",
-        amount: "2500000000000000000",
-        voteCount: 18,
-        deadline: 1704326400,
-        executed: true,
-        isVoted: true,
-    },
-    {
-        id: 6,
-        description: "Developer grants program",
-        recipient: "0x6789012345678901234567890123456789012345",
-        amount: "1800000000000000000",
-        voteCount: 25,
-        deadline: 1704412800,
-        executed: false,
-        isVoted: false,
-    },
-    {
-        id: 7,
-        description: "Community event sponsorship",
-        recipient: "0x7890123456789012345678901234567890123456",
-        amount: "1200000000000000000",
-        voteCount: 10,
-        deadline: 1704499200,
-        executed: false,
-        isVoted: false,
-    },
-    {
-        id: 8,
-        description: "Protocol research funding",
-        recipient: "0x8901234567890123456789012345678901234567",
-        amount: "2200000000000000000",
-        voteCount: 16,
-        deadline: 1704585600,
-        executed: true,
-        isVoted: true,
-    },
-    {
-        id: 9,
-        description: "DAO treasury diversification",
-        recipient: "0x9012345678901234567890123456789012345678",
-        amount: "4000000000000000000",
-        voteCount: 30,
-        deadline: 1704672000,
-        executed: false,
-        isVoted: true,
-    },
-    {
-        id: 10,
-        description: "Technical documentation update",
-        recipient: "0x0123456789012345678901234567890123456789",
-        amount: "1600000000000000000",
-        voteCount: 14,
-        deadline: 1704758400,
-        executed: false,
-        isVoted: false,
-    },
-];
+import useProposals from "./hooks/useProposals";
 
 function App() {
     const chairPerson = useChairPerson();
 
-    const activePropsals = proposals.filter(
-        (proposal) =>
-            !proposal.executed || proposal.deadline * 1000 > Date.now()
-    );
-    const inActiveProposals = proposals.filter(
-        (proposal) => proposal.executed || proposal.deadline * 1000 < Date.now()
-    );
+    const { proposals, proposalQuorum, voteOnProposal, executeProposal } =
+        useProposals();
+
+    console.log("proposals: ", proposals);
+
+    const activePropsals = proposals.filter((proposal) => !proposal.executed);
+
+    const inActiveProposals = proposals.filter((proposal) => proposal.executed);
+
     return (
         <AppLayout chairPersonAddress={chairPerson}>
             <div className="flex w-full flex-col gap-6">
@@ -140,7 +40,9 @@ function App() {
                                     <ProposalCard
                                         key={p.id}
                                         {...p}
-                                        handleVote={() => {}}
+                                        quorum={proposalQuorum}
+                                        handleVote={voteOnProposal}
+                                        handleExecute={executeProposal}
                                     />
                                 ))}
                             </div>
@@ -155,7 +57,9 @@ function App() {
                                     <ProposalCard
                                         key={p.id}
                                         {...p}
-                                        handleVote={() => {}}
+                                        quorum={proposalQuorum}
+                                        handleVote={voteOnProposal}
+                                        handleExecute={executeProposal}
                                     />
                                 ))}
                             </div>

@@ -13,7 +13,7 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover";
 
-export function DateTimePicker({ date, setDate }) {
+export function DateTimePicker({ date, setDate, time, setTime }) {
     const [open, setOpen] = React.useState(false);
 
     return (
@@ -57,7 +57,8 @@ export function DateTimePicker({ date, setDate }) {
                     type="time"
                     id="time-picker"
                     step="1"
-                    defaultValue="10:30:00"
+                    value={time}
+                    onChange={(e) => setTime(e.target.value)}
                     className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
                 />
             </div>

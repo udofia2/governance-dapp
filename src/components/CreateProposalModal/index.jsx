@@ -11,17 +11,35 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { DateTimePicker } from "../DateTimePicker";
-import useCreateProposal from "../../hooks/useCreateProposal";
+import {
+    /* useCreateProposal, */ useCreateProposalEthers,
+} from "../../hooks/useCreateProposal";
 import { parseEther } from "viem";
 
 export function CreateProposalModal() {
     const [description, setDecription] = useState("");
     const [recipient, setRecipient] = useState("");
     const [amount, setAmount] = useState("");
-    const [deadline, setDeadline] = useState();
-    const createProposal = useCreateProposal();
+    // const [deadline, setDeadline] = useState();
+    const [date, setDate] = useState();
+    const [time, setTime] = useState();
+    // const createProposal = useCreateProposal();
+    const createProposal = useCreateProposalEthers();
+
+    const duration = useMemo(() => {
+        if (!date || !time) return 0;
+
+        const fullDate = new Date(date);
+        const [hour, minutes, seconds] = time.split(":");
+        fullDate.setHours(Number(hour), Number(minutes), Number(seconds));
+
+        const val =
+            Math.round(fullDate.valueOf() / 1000) -
+            Math.round(Date.now() / 1000);
+        return val;
+    }, [date, time]);
 
     return (
         <Dialog>
@@ -71,8 +89,10 @@ export function CreateProposalModal() {
                         <div className="grid gap-3">
                             <Label htmlFor="recipient">deadline</Label>
                             <DateTimePicker
-                                date={deadline}
-                                setDate={setDeadline}
+                                date={date}
+                                setDate={setDate}
+                                time={time}
+                                setTime={setTime}
                             />
                         </div>
                     </div>
@@ -85,7 +105,7 @@ export function CreateProposalModal() {
                                     description,
                                     recipient,
                                     parseEther(amount),
-                                    deadline.valueOf() / 1000
+                                    duration
                                 )
                             }
                         >
