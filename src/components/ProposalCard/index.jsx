@@ -8,6 +8,9 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { shortenAddress } from "../../lib/utils";
+import { formatEther } from "viem";
+import { useMemo } from "react";
+import clsx from "clsx";
 
 const ProposalCard = ({
     id,
@@ -17,9 +20,14 @@ const ProposalCard = ({
     voteCount,
     deadline,
     executed,
-    isVoted,
+    hasVoted,
     handleVote,
+    handleExecute,
+    quorum,
 }) => {
+    const isExpired = useMemo(() => {
+        return Math.round(Date.now() / 1000) > Number(deadline);
+    }, [deadline]);
     return (
         <Card className="w-full mx-auto">
             <CardHeader>
@@ -31,31 +39,44 @@ const ProposalCard = ({
             </CardHeader>
             <CardContent>
                 <div>
-                    <span>Recipient</span>
+                    <span>Recipient: </span>
                     <span>{shortenAddress(recipient, 4)}</span>
                 </div>
                 <div>
-                    <span>Amount</span>
-                    <span>{amount}</span>
+                    <span>Amount: </span>
+                    <span>{formatEther(amount)}</span>
                 </div>
                 <div>
-                    <span>Deadline</span>
+                    <span>Deadline: </span>
                     <span>{deadline}</span>
                 </div>
                 <div>
-                    <span>Executed</span>
-                    <span>{executed}</span>
+                    <span>Executed: </span>
+                    <span>{String(executed)}</span>
                 </div>
             </CardContent>
-            <CardFooter className="flex-col gap-2">
+            <CardFooter className="flex gap-2">
                 <Button
-                    onClick={handleVote}
-                    disabled={isVoted}
+                    onClick={() => handleVote(id)}
+                    disabled={hasVoted || isExpired}
                     type="submit"
-                    className="w-full"
+                    className={clsx({
+                        "w-full": voteCount < quorum,
+                        "w-1/2": voteCount >= quorum,
+                    })}
                 >
                     Vote
                 </Button>
+                {voteCount >= quorum && (
+                    <Button
+                        onClick={() => handleExecute(id)}
+                        disabled={executed}
+                        type="submit"
+                        className="w-1/2"
+                    >
+                        Execute
+                    </Button>
+                )}
             </CardFooter>
         </Card>
     );
